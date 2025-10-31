@@ -162,21 +162,4 @@
     display: none !important;
   }
 }
-@layer utilities {
-  .static {
-    position: static;
-  }
-  .contents {
-    display: contents;
-  }
-  .bg-yellow-500 {
-    background-color: var(--color-yellow-500);
-  }
-  .p-6 {
-    padding: calc(var(--spacing) * 6);
-  }
-  .text-4xl {
-    font-size: var(--text-4xl);
-    line-height: var(--tw-leading, var(--text-4xl--line-height));
-  }
-}
+@layer utilities;
