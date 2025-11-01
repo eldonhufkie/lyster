@@ -1,0 +1,90 @@
+@*
+    Ghost/Secondary button component with subtle styling
+    Usage:
+    <GhostButton OnClick="HandleClick">
+        Continue as Guest
+    </GhostButton>
+*@
+
+<button
+    type="@Type"
+    disabled="@(Disabled || Loading)"
+    @onclick="HandleClick"
+    class="@ButtonClasses"
+    aria-busy="@Loading"
+    aria-label="@AriaLabel">
+
+    @if (Loading)
+    {
+        <svg class="animate-spin h-5 w-5 @(ChildContent != null ? "mr-2" : "")" fill="none" viewBox="0 0 24 24">
+            <circle class="opacity-25" cx="12" cy="12" r="10" stroke="currentColor" stroke-width="4"></circle>
+            <path class="opacity-75" fill="currentColor" d="M4 12a8 8 0 018-8V0C5.373 0 0 5.373 0 12h4zm2 5.291A7.962 7.962 0 014 12H0c0 3.042 1.135 5.824 3 7.938l3-2.647z"></path>
+        </svg>
+    }
+
+    @if (!string.IsNullOrEmpty(Icon) && !Loading)
+    {
+        <span class="@(ChildContent != null ? "mr-2" : "")">
+            @((MarkupString)Icon)
+        </span>
+    }
+
+    @if (ChildContent != null)
+    {
+        @ChildContent
+    }
+</button>
+
+@code {
+    [Parameter] public RenderFragment? ChildContent { get; set; }
+    [Parameter] public EventCallback<MouseEventArgs> OnClick { get; set; }
+    [Parameter] public string Type { get; set; } = "button";
+    [Parameter] public bool Disabled { get; set; }
+    [Parameter] public bool Loading { get; set; }
+    [Parameter] public bool FullWidth { get; set; }
+    [Parameter] public string? Icon { get; set; }
+    [Parameter] public string Size { get; set; } = "md"; // sm, md, lg
+    [Parameter] public string Variant { get; set; } = "default"; // default, bordered, text
+    [Parameter] public string? AriaLabel { get; set; }
+    [Parameter] public string? AdditionalClasses { get; set; }
+
+    private string ButtonClasses
+    {
+        get
+        {
+            var baseClasses = "inline-flex items-center justify-center font-medium rounded-lg transition-all duration-base";
+            var widthClasses = FullWidth ? "w-full" : "";
+            var sizeClasses = Size switch
+            {
+                "sm" => "px-4 py-2 text-sm",
+                "lg" => "px-6 py-4 text-lg",
+                _ => "px-5 py-3 text-base"
+            };
+
+            string variantClasses;
+            if (Disabled || Loading)
+            {
+                variantClasses = "bg-bg-700 text-text-tertiary cursor-not-allowed";
+            }
+            else
+            {
+                variantClasses = Variant switch
+                {
+                    "bordered" => "bg-transparent border border-border-primary text-text-primary hover:bg-surface hover:border-accent active:bg-bg-800 focus:outline-none focus:ring-2 focus:ring-accent focus:ring-offset-2 focus:ring-offset-bg-900",
+                    "text" => "bg-transparent text-text-secondary hover:text-text-primary hover:bg-surface/50 active:bg-surface focus:outline-none focus:ring-2 focus:ring-accent focus:ring-offset-2 focus:ring-offset-bg-900",
+                    _ => "bg-surface text-text-primary hover:bg-surface-elevated active:bg-bg-800 focus:outline-none focus:ring-2 focus:ring-accent focus:ring-offset-2 focus:ring-offset-bg-900"
+                };
+            }
+
+            return $"{baseClasses} {widthClasses} {sizeClasses} {variantClasses} {AdditionalClasses}".Trim();
+        }
+    }
+
+    private async Task HandleClick(MouseEventArgs e)
+    {
+        if (!Disabled && !Loading)
+        {
+            await OnClick.InvokeAsync(e);
+        }
+    }
+}

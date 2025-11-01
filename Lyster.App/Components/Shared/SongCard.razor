@@ -1,0 +1,204 @@
+@using Lyster.App.Models
+
+@*
+    Song card component for grid and list views
+    Usage:
+    <SongCard Song="@song" ViewMode="grid" OnPlay="HandlePlay" OnToggleFavorite="HandleFavorite" />
+*@
+
+@if (ViewMode == "grid")
+{
+    <!-- Grid Card View -->
+    <div class="@GridCardClasses" @onclick="HandleCardClick">
+        <AvatarOrCover
+            Src="@Song.AlbumArtUrl"
+            Alt="@Song.Album"
+            Size="full"
+            Shape="rounded"
+            ShowPlayOverlay="true"
+            IsPlaying="@Song.IsPlaying"
+            OnPlayClick="HandlePlayClick"
+        />
+
+        <div class="p-4 space-y-2">
+            <h3 class="text-base font-semibold text-text-primary truncate" title="@Song.Title">
+                @Song.Title
+            </h3>
+            <p class="text-sm text-text-secondary truncate" title="@Song.Artist">
+                @Song.Artist
+            </p>
+            <div class="flex items-center justify-between pt-2">
+                <span class="text-xs text-text-tertiary">@Song.FormattedDuration</span>
+                <button
+                    type="button"
+                    @onclick="HandleFavoriteClick"
+                    @onclick:stopPropagation="true"
+                    class="@FavoriteButtonClasses"
+                    aria-label="@(Song.IsFavorite ? "Remove from favorites" : "Add to favorites")">
+                    @if (Song.IsFavorite)
+                    {
+                        <!-- Filled heart -->
+                        <svg class="w-5 h-5" fill="currentColor" viewBox="0 0 20 20">
+                            <path fill-rule="evenodd" d="M3.172 5.172a4 4 0 015.656 0L10 6.343l1.172-1.171a4 4 0 115.656 5.656L10 17.657l-6.828-6.829a4 4 0 010-5.656z" clip-rule="evenodd"/>
+                        </svg>
+                    }
+                    else
+                    {
+                        <!-- Outline heart -->
+                        <svg class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M4.318 6.318a4.5 4.5 0 000 6.364L12 20.364l7.682-7.682a4.5 4.5 0 00-6.364-6.364L12 7.636l-1.318-1.318a4.5 4.5 0 00-6.364 0z"/>
+                        </svg>
+                    }
+                </button>
+            </div>
+        </div>
+    </div>
+}
+else
+{
+    <!-- List Row View -->
+    <div class="@ListRowClasses" @onclick="HandleCardClick">
+        <div class="flex items-center gap-4 flex-1 min-w-0">
+            <!-- Index or Play button -->
+            <div class="w-8 text-center flex-shrink-0">
+                @if (Song.IsPlaying)
+                {
+                    <button
+                        type="button"
+                        @onclick="HandlePlayClick"
+                        @onclick:stopPropagation="true"
+                        class="text-accent hover:scale-110 transition-transform"
+                        aria-label="Pause">
+                        <!-- Playing indicator (bars) -->
+                        <svg class="w-4 h-4 mx-auto" viewBox="0 0 24 24" fill="currentColor">
+                            <rect x="6" y="4" width="4" height="16" opacity="0.9">
+                                <animate attributeName="height" values="4;16;4" dur="1s" repeatCount="indefinite"/>
+                                <animate attributeName="y" values="10;4;10" dur="1s" repeatCount="indefinite"/>
+                            </rect>
+                            <rect x="14" y="4" width="4" height="16" opacity="0.9">
+                                <animate attributeName="height" values="16;4;16" dur="1s" repeatCount="indefinite"/>
+                                <animate attributeName="y" values="4;10;4" dur="1s" repeatCount="indefinite"/>
+                            </rect>
+                        </svg>
+                    </button>
+                }
+                else
+                {
+                    <span class="text-text-tertiary text-sm group-hover:hidden">@Index</span>
+                    <button
+                        type="button"
+                        @onclick="HandlePlayClick"
+                        @onclick:stopPropagation="true"
+                        class="hidden group-hover:inline-block text-text-primary hover:text-accent transition-colors"
+                        aria-label="Play">
+                        <svg class="w-4 h-4 mx-auto" fill="currentColor" viewBox="0 0 24 24">
+                            <path d="M8 5v14l11-7z"/>
+                        </svg>
+                    </button>
+                }
+            </div>
+
+            <!-- Album art -->
+            <AvatarOrCover
+                Src="@Song.AlbumArtUrl"
+                Alt="@Song.Album"
+                Size="sm"
+                Shape="rounded"
+            />
+
+            <!-- Song info -->
+            <div class="flex-1 min-w-0">
+                <h3 class="text-sm font-medium text-text-primary truncate" title="@Song.Title">
+                    @Song.Title
+                </h3>
+                <p class="text-xs text-text-secondary truncate" title="@Song.Artist">
+                    @Song.Artist
+                </p>
+            </div>
+        </div>
+
+        <!-- Album name -->
+        <div class="hidden md:block flex-1 min-w-0 px-4">
+            <p class="text-sm text-text-secondary truncate" title="@Song.Album">@Song.Album</p>
+        </div>
+
+        <!-- Duration and favorite -->
+        <div class="flex items-center gap-4 flex-shrink-0">
+            <button
+                type="button"
+                @onclick="HandleFavoriteClick"
+                @onclick:stopPropagation="true"
+                class="@FavoriteButtonClasses"
+                aria-label="@(Song.IsFavorite ? "Remove from favorites" : "Add to favorites")">
+                @if (Song.IsFavorite)
+                {
+                    <svg class="w-5 h-5" fill="currentColor" viewBox="0 0 20 20">
+                        <path fill-rule="evenodd" d="M3.172 5.172a4 4 0 015.656 0L10 6.343l1.172-1.171a4 4 0 115.656 5.656L10 17.657l-6.828-6.829a4 4 0 010-5.656z" clip-rule="evenodd"/>
+                    </svg>
+                }
+                else
+                {
+                    <svg class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M4.318 6.318a4.5 4.5 0 000 6.364L12 20.364l7.682-7.682a4.5 4.5 0 00-6.364-6.364L12 7.636l-1.318-1.318a4.5 4.5 0 00-6.364 0z"/>
+                    </svg>
+                }
+            </button>
+            <span class="text-sm text-text-tertiary w-12 text-right">@Song.FormattedDuration</span>
+
+            <!-- More options menu -->
+            <button
+                type="button"
+                class="text-text-tertiary hover:text-text-primary transition-colors opacity-0 group-hover:opacity-100"
+                aria-label="More options"
+                @onclick:stopPropagation="true">
+                <svg class="w-5 h-5" fill="currentColor" viewBox="0 0 20 20">
+                    <path d="M10 6a2 2 0 110-4 2 2 0 010 4zM10 12a2 2 0 110-4 2 2 0 010 4zM10 18a2 2 0 110-4 2 2 0 010 4z"/>
+                </svg>
+            </button>
+        </div>
+    </div>
+}
+
+@code {
+    [Parameter, EditorRequired] public Song Song { get; set; } = null!;
+    [Parameter] public string ViewMode { get; set; } = "grid"; // grid or list
+    [Parameter] public int Index { get; set; } = 1;
+    [Parameter] public EventCallback<Song> OnPlay { get; set; }
+    [Parameter] public EventCallback<Song> OnToggleFavorite { get; set; }
+    [Parameter] public EventCallback<Song> OnClick { get; set; }
+
+    private string GridCardClasses =>
+        "bg-surface hover:bg-surface-elevated rounded-xl transition-all duration-base cursor-pointer album-hover overflow-hidden group";
+
+    private string ListRowClasses =>
+        "flex items-center gap-4 p-3 rounded-lg hover:bg-surface transition-colors duration-base cursor-pointer group";
+
+    private string FavoriteButtonClasses =>
+        Song.IsFavorite
+            ? "text-accent hover:text-accent-hover transition-colors"
+            : "text-text-tertiary hover:text-accent transition-colors";
+
+    private async Task HandlePlayClick()
+    {
+        if (OnPlay.HasDelegate)
+        {
+            await OnPlay.InvokeAsync(Song);
+        }
+    }
+
+    private async Task HandleFavoriteClick()
+    {
+        if (OnToggleFavorite.HasDelegate)
+        {
+            await OnToggleFavorite.InvokeAsync(Song);
+        }
+    }
+
+    private async Task HandleCardClick()
+    {
+        if (OnClick.HasDelegate)
+        {
+            await OnClick.InvokeAsync(Song);
+        }
+    }
+}
